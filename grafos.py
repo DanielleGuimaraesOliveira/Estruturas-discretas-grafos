@@ -28,7 +28,26 @@ def gerar_grafo(qnt_vertices, prob, seed):
 def graus(matriz_incidencia):
     return [sum(linha) for linha in matriz_incidencia]
 
-def printa(vertices, aresta, matriz_incidencia):
+def conexo(arestas, matriz_incidencia):
+    qnt_vertices = len(matriz_incidencia)
+    visitados = [False] * qnt_vertices
+
+    # Função auxiliar para realizar a busca em profundidade (DFS)
+    def busca_profundidade(vertice):
+        visitados[vertice] = True
+        for coluna, valor in enumerate(matriz_incidencia[vertice]):
+            if valor == 1:
+                vertice_adjacente = arestas[coluna][0] if arestas[coluna][0] != (vertice + 1) else arestas[coluna][1]
+                if not visitados[vertice_adjacente - 1] and matriz_incidencia[vertice_adjacente - 1][coluna] == 1:
+                    print(f"Visitando vértice {vertice_adjacente} a partir do vértice {vertice + 1}")
+                    busca_profundidade(vertice_adjacente - 1)
+
+    busca_profundidade(0)
+
+    print("Vértices visitados:", [i + 1 for i, v in enumerate(visitados) if v])
+    return all(visitados)
+
+def printa(vertices, arestas, matriz_incidencia):
     print("Número de vertices:", len(vertices))
 
     print("\nArestas:")
@@ -54,6 +73,9 @@ def printa(vertices, aresta, matriz_incidencia):
 
     for indice, grau in enumerate(lista_graus, start=1):
         print(f"Vertice {indice}: grau {grau}")
+
+    print("\nConexão do grafo:")
+    print("Conexo:", "Sim\n" if conexo(arestas, matriz_incidencia) else "Não\n")
 
 
 vertices, arestas, matriz_incidencia= gerar_grafo(QNT_VERTICES, PROBABILIDADE, SEED)
