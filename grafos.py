@@ -30,6 +30,12 @@ def graus(matriz_incidencia):
 
 def conexo(arestas, matriz_incidencia):
     qnt_vertices = len(matriz_incidencia)
+    lista_graus = graus(matriz_incidencia)
+    nao_nulos = [i for i, g in enumerate(lista_graus) if g > 0]
+
+    if not nao_nulos:
+        return True
+
     visitados = [False] * qnt_vertices
 
     # Função auxiliar para realizar a busca em profundidade (DFS)
@@ -38,14 +44,14 @@ def conexo(arestas, matriz_incidencia):
         for coluna, valor in enumerate(matriz_incidencia[vertice]):
             if valor == 1:
                 vertice_adjacente = arestas[coluna][0] if arestas[coluna][0] != (vertice + 1) else arestas[coluna][1]
-                if not visitados[vertice_adjacente - 1] and matriz_incidencia[vertice_adjacente - 1][coluna] == 1:
-                    print(f"Visitando vértice {vertice_adjacente} a partir do vértice {vertice + 1}")
+                if not visitados[vertice_adjacente - 1]:
                     busca_profundidade(vertice_adjacente - 1)
 
-    busca_profundidade(0)
+    busca_profundidade(nao_nulos[0])
 
     print("Vértices visitados:", [i + 1 for i, v in enumerate(visitados) if v])
-    return all(visitados)
+    return all(visitados[i] for i in nao_nulos)
+
 
 def printa(vertices, arestas, matriz_incidencia):
     print("Número de vertices:", len(vertices))
