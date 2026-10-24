@@ -49,8 +49,15 @@ def conexo(arestas, matriz_incidencia):
 
     busca_profundidade(nao_nulos[0])
 
-    print("Vértices visitados:", [i + 1 for i, v in enumerate(visitados) if v])
     return all(visitados[i] for i in nao_nulos)
+
+def euleriano(arestas, matriz_incidencia):
+    # Critério 1: vértices de grau não nulo na mesma componente conexa
+    if not conexo(arestas, matriz_incidencia):
+        return False
+
+    # Critério 2: todos os vértices de grau não nulo têm grau par
+    return all(grau % 2 == 0 for grau in graus(matriz_incidencia) if grau > 0)
 
 
 def printa(vertices, arestas, matriz_incidencia):
@@ -80,8 +87,9 @@ def printa(vertices, arestas, matriz_incidencia):
     for indice, grau in enumerate(lista_graus, start=1):
         print(f"Vertice {indice}: grau {grau}")
 
-    print("\nConexão do grafo:")
-    print("Conexo:", "Sim\n" if conexo(arestas, matriz_incidencia) else "Não\n")
+    print("\nConexo:", "Sim\n" if conexo(arestas, matriz_incidencia) else "Não\n")
+
+    print("Euleriano:", "Sim\n" if euleriano(arestas, matriz_incidencia) else "Não\n")
 
 
 vertices, arestas, matriz_incidencia= gerar_grafo(QNT_VERTICES, PROBABILIDADE, SEED)
