@@ -4,9 +4,7 @@ SEED = 137
 PROBABILIDADE = 0.3
 
 
-def gerar_grafo(qnt_vertices, prob, seed):
-    sorteio = random.Random(seed)
-
+def gerar_grafo(qnt_vertices, prob, sorteio):
     vertices = list(range(1, qnt_vertices + 1))
     arestas = []
 
@@ -60,14 +58,29 @@ def euleriano(arestas, matriz_incidencia):
     return all(grau % 2 == 0 for grau in graus(matriz_incidencia) if grau > 0)
 
 
-def printa(vertices, arestas, matriz_incidencia):
-    print("Número de vertices:", len(vertices))
+def sim_nao(condicao):
+    return "sim" if condicao else "nao"
+
+
+def printa(vertices, arestas, matriz_incidencia, prob, seed, qnt_gerados):
+    lista_graus = graus(matriz_incidencia)
+
+    print("Numero de vertices:", len(vertices))
+    print(f"Probabilidade p: {prob:.2f}")
+    print("Seed:", seed)
+    print("\nGrafo Euleriano encontrado!")
+    print("\nNumero de grafos gerados:", qnt_gerados)
 
     print("\nArestas:")
-    for indice, aresta in enumerate(arestas, start=1):
-        print(f"E{indice} = {aresta}")
+    print(" ".join(f"({u},{v})" for u, v in arestas))
 
-    print("\nQuantidade de arestas:", len(arestas))
+    print("\nGraus:")
+    for indice, grau in enumerate(lista_graus, start=1):
+        print(f"v{indice}: {grau}")
+
+    print("\nConexo:", sim_nao(conexo(arestas, matriz_incidencia)))
+    print("Todos os graus sao pares:", sim_nao(all(grau % 2 == 0 for grau in lista_graus)))
+    print("Euleriano:", sim_nao(euleriano(arestas, matriz_incidencia)))
 
     print("\nMatriz de incidencia:")
     print("        ", end="")
@@ -81,17 +94,15 @@ def printa(vertices, arestas, matriz_incidencia):
             print(f"{valor:>4}", end="  ")
         print()
 
-    print("\nGraus dos vertices:")
-    lista_graus = graus(matriz_incidencia)
 
-    for indice, grau in enumerate(lista_graus, start=1):
-        print(f"Vertice {indice}: grau {grau}")
+# Mesmo gerador (mesma seed) para todos os grafos: cada tentativa consome a sequência seguinte
+sorteio = random.Random(SEED)
+qnt_gerados = 0
 
-    print("\nConexo:", "Sim\n" if conexo(arestas, matriz_incidencia) else "Não\n")
+while True:
+    vertices, arestas, matriz_incidencia = gerar_grafo(QNT_VERTICES, PROBABILIDADE, sorteio)
+    qnt_gerados += 1
+    if arestas and euleriano(arestas, matriz_incidencia):
+        break
 
-    print("Euleriano:", "Sim\n" if euleriano(arestas, matriz_incidencia) else "Não\n")
-
-
-vertices, arestas, matriz_incidencia= gerar_grafo(QNT_VERTICES, PROBABILIDADE, SEED)
-
-printa(vertices,arestas, matriz_incidencia)
+printa(vertices, arestas, matriz_incidencia, PROBABILIDADE, SEED, qnt_gerados)
