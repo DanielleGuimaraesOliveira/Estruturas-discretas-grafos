@@ -1,4 +1,5 @@
 import random
+import time
 from collections import Counter
 QNT_VERTICES = 10
 SEED = 137
@@ -42,7 +43,12 @@ def conexo(arestas, matriz_incidencia):
         visitados[vertice] = True
         for coluna, valor in enumerate(matriz_incidencia[vertice]):
             if valor == 1:
-                vertice_adjacente = arestas[coluna][0] if arestas[coluna][0] != (vertice + 1) else arestas[coluna][1]
+                u, v = arestas[coluna]
+
+                if u == vertice + 1:
+                    vertice_adjacente = v
+                else:
+                    vertice_adjacente = u
                 if not visitados[vertice_adjacente - 1]:
                     busca_profundidade(vertice_adjacente - 1)
 
@@ -51,6 +57,8 @@ def conexo(arestas, matriz_incidencia):
     return all(visitados[i] for i in nao_nulos)
 
 def euleriano(arestas, matriz_incidencia):
+    if not arestas:
+        return True
     # Critério 1: vértices de grau não nulo na mesma componente conexa
     if not conexo(arestas, matriz_incidencia):
         return False
@@ -144,20 +152,53 @@ def printa(vertices, arestas, matriz_incidencia, prob, seed, qnt_gerados):
         print(f"e{j + 1:<3}", end="  ")
     print()
 
-    for i, linha in enumerate(matriz_incidencia):
-        print(f"v{i + 0:<3}: ", end="")
+    for i, linha in enumerate(matriz_incidencia, start=1):
+        print(f"v{i:<3}: ", end="")
         for valor in linha:
             print(f"{valor:>4}", end="  ")
         print()
 
+def experimento_1000_vertices():
+    sorteio = random.Random(SEED)
+    total = 1000
+    quantidade_eulerianos = 0
 
-sorteio = random.Random(SEED)
-qnt_gerados = 0
+    inicio = time.perf_counter()
 
-while True:
-    vertices, arestas, matriz_incidencia = gerar_grafo(QNT_VERTICES, PROBABILIDADE, sorteio)
-    qnt_gerados += 1
-    if arestas and euleriano(arestas, matriz_incidencia):
-        break
+    for _ in range(total):
+        vertices, arestas, matriz = gerar_grafo(
+            QNT_VERTICES,
+            PROBABILIDADE,
+            sorteio
+        )
 
-printa(vertices, arestas, matriz_incidencia, PROBABILIDADE, SEED, qnt_gerados)
+        if euleriano(arestas, matriz):
+            quantidade_eulerianos += 1
+
+    tempo_total = time.perf_counter() - inicio
+    proporcao = quantidade_eulerianos / total
+
+    print("\nExperimento com 1000 grafos:")
+    print("Grafos Eulerianos:", quantidade_eulerianos)
+    print(f"Proporcao: {proporcao:.4f}")
+    print(f"Tempo total: {tempo_total:.6f} segundos")
+    
+if __name__ == "__main__":
+    sorteio = random.Random(SEED)
+    qnt_gerados = 0
+
+    while True:
+        vertices, arestas, matriz_incidencia = gerar_grafo(
+            QNT_VERTICES, PROBABILIDADE, sorteio
+        )
+        qnt_gerados += 1
+
+        if arestas and euleriano(arestas, matriz_incidencia):
+            break
+
+    printa(
+        vertices, arestas, matriz_incidencia,
+        PROBABILIDADE, SEED, qnt_gerados
+    )
+
+    experimento_1000_vertices()
